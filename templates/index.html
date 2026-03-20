@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}House Price Predictor{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+
+  <header class="page-header">
+    <p class="eyebrow">ML-Powered Valuation</p>
+    <h1>House Price<br/><span>Predictor</span></h1>
+    <p>Enter your property details below and get an instant estimate powered by linear regression.</p>
+  </header>
+
+  <div class="card">
+
+    <div class="field">
+      <label for="sqft">Square Footage</label>
+      <div class="input-wrap">
+        <input
+          type="number"
+          id="sqft"
+          class="has-unit"
+          placeholder="e.g. 1800"
+          min="100"
+          max="20000"
+          step="50"
+        />
+        <span class="unit">sq ft</span>
+      </div>
+      <p class="hint">Typical range: 600 – 5,000 sq ft</p>
+    </div>
+
+    <div class="field">
+      <label for="bedrooms">Bedrooms — <span id="bed-label">3</span></label>
+      <div class="bedroom-control">
+        <input type="range" id="bedrooms" min="1" max="8" value="3" step="1"/>
+        <span class="bedroom-count" id="bed-count">3</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn" id="predict-btn">
+      <span class="btn-text">Get Estimate</span>
+      <span class="spinner"></span>
+    </button>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="result" id="result">
+      <p class="label">Estimated Market Value</p>
+      <p class="price" id="result-price">—</p>
+      <p class="subtext" id="result-subtext">Based on your inputs</p>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/predictor.js') }}"></script>
+{% endblock %}

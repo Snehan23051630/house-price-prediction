@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}About — PriceWise{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+
+  <header class="page-header">
+    <p class="eyebrow">Under the hood</p>
+    <h1>About the <span>Model</span></h1>
+    <p>How PriceWise estimates your property value.</p>
+  </header>
+
+  <div class="card about-card">
+
+    <section class="about-section">
+      <h2>📐 Algorithm</h2>
+      <p>
+        PriceWise uses <strong>Ordinary Least Squares Linear Regression</strong>
+        (via Scikit-Learn). The model learns a linear relationship between two
+        input features and the sale price of a home.
+      </p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="about-section">
+      <h2>🔢 Features</h2>
+      <ul class="feature-list">
+        <li>
+          <span class="feature-name">sqft</span>
+          <span class="feature-desc">Interior square footage — the dominant driver of price.</span>
+        </li>
+        <li>
+          <span class="feature-name">bedrooms</span>
+          <span class="feature-desc">Number of bedrooms — a secondary signal.</span>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="about-section">
+      <h2>📊 Training Data</h2>
+      <p>
+        The model is trained on 13 synthetic data points ranging from 600 to 4,000 sq ft.
+        In a production system this would be replaced with real MLS data.
+      </p>
+
+      <table class="data-table">
+        <thead>
+          <tr><th>Sq Ft</th><th>Beds</th><th>Price</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>600</td><td>1</td><td>$120,000</td></tr>
+          <tr><td>1,000</td><td>2</td><td>$200,000</td></tr>
+          <tr><td>1,500</td><td>3</td><td>$300,000</td></tr>
+          <tr><td>2,000</td><td>4</td><td>$400,000</td></tr>
+          <tr><td>2,500</td><td>4</td><td>$500,000</td></tr>
+          <tr><td>3,000</td><td>5</td><td>$600,000</td></tr>
+          <tr><td>4,000</td><td>6</td><td>$800,000</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="about-section">
+      <h2>🛠 Tech Stack</h2>
+      <ul class="stack-list">
+        <li><strong>ML:</strong> Scikit-Learn (LinearRegression)</li>
+        <li><strong>Backend:</strong> Flask + Gunicorn</li>
+        <li><strong>Frontend:</strong> Vanilla HTML / CSS / JS</li>
+        <li><strong>Hosting:</strong> Render / Railway</li>
+      </ul>
+    </section>
+
+  </div>
+
+</div>
+{% endblock %}

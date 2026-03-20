@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}House Price Predictor{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+
+  <!-- Per-page extra styles -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <a class="nav__brand" href="{{ url_for('main.index') }}">🏠 PriceWise</a>
+    <ul class="nav__links">
+      <li><a href="{{ url_for('main.index') }}" {% if request.endpoint == 'main.index' %}class="active"{% endif %}>Predictor</a></li>
+      <li><a href="{{ url_for('main.about') }}" {% if request.endpoint == 'main.about' %}class="active"{% endif %}>About</a></li>
+      {% if session.get('user') %}
+        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}" {% if request.endpoint == 'auth.login' %}class="active"{% endif %}>Login</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- ── Flash messages ──────────────────────────────────────────────────── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash--{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── Page content ────────────────────────────────────────────────────── -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    Powered by Scikit-Learn &amp; Flask &nbsp;·&nbsp;
+    <a href="https://render.com" target="_blank" rel="noopener">Hosted on Render</a>
+  </footer>
+
+  <!-- Per-page scripts -->
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
