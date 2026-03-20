@@ -1,82 +1,40 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session
-from .model import predict_price
-
-# ── Blueprints ────────────────────────────────────────────────────────────────
-main  = Blueprint('main',  __name__)
-auth  = Blueprint('auth',  __name__)
-api   = Blueprint('api',   __name__, url_prefix='/api')
-
-# ── Main pages ────────────────────────────────────────────────────────────────
-
-@main.route('/')
-def index():
-    """Home page — house price predictor form."""
-    return render_template('index.html')
+import pickle
+import numpy as np
+from flask import current_app
 
 
-@main.route('/about')
-def about():
-    """About page explaining the model and project."""
-    return render_template('about.html')
+def load_model():
+    """Load the trained model from disk. Called once at app startup."""
+    model_path = current_app.config['MODEL_PATH']
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
 
 
-# ── Auth pages ────────────────────────────────────────────────────────────────
-
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page (demo — no real auth)."""
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-
-        # Demo credentials — replace with real DB lookup in production
-        if username == 'demo' and password == 'demo123':
-            session['user'] = username
-            flash('Welcome back, demo!', 'success')
-            return redirect(url_for('main.index'))
-        else:
-            flash('Invalid username or password.', 'error')
-
-    return render_template('login.html')
-
-
-@auth.route('/logout')
-def logout():
-    session.pop('user', None)
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('auth.login'))
-
-
-# ── API endpoints ─────────────────────────────────────────────────────────────
-
-@api.route('/predict', methods=['POST'])
-def predict():
+def predict_price(model, sqft: float, bedrooms: float) -> dict:
     """
-    POST /api/predict
-    Body: { "sqft": 1800, "bedrooms": 3 }
-    Returns: { "price": 360000.0, "formatted": "$360,000" }
+    Run a prediction and return a result dict.
+
+    Args:
+        model:    Loaded sklearn model object.
+        sqft:     Square footage (float).
+        bedrooms: Number of bedrooms (float).
+
+    Returns:
+        dict with keys 'price' (float) and 'formatted' (str).
+
+    Raises:
+        ValueError: If inputs are out of acceptable range.
     """
-    from flask import current_app
+    if sqft <= 0:
+        raise ValueError('Square footage must be greater than 0.')
+    if not (1 <= bedrooms <= 10):
+        raise ValueError('Bedrooms must be between 1 and 10.')
 
-    try:
-        body = request.get_json(force=True)
-        if not body:
-            return jsonify({'error': 'Request body must be JSON.'}), 400
+    features = np.array([[sqft, bedrooms]])
+    raw = model.predict(features)[0]
+    price = float(max(raw, 500_000))   # floor at ₹5,00,000
 
-        sqft     = float(body.get('sqft', 0))
-        bedrooms = float(body.get('bedrooms', 1))
-
-        model  = current_app.config['MODEL']
-        result = predict_price(model, sqft, bedrooms)
-        return jsonify(result)
-
-    except (ValueError, TypeError) as exc:
-        return jsonify({'error': str(exc)}), 400
-    except Exception:
-        return jsonify({'error': 'Prediction failed. Please try again.'}), 500
-
-
-@api.route('/health', methods=['GET'])
-def health():
-    """Simple health-check endpoint used by Render/Railway."""
-    return jsonify({'status': 'ok', 'model': 'loaded'})
+    return {
+        'price':     round(price, 2),
+        'formatted': f'${price:,.0f}',
+    }
